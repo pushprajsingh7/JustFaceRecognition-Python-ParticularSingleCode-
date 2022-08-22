@@ -1,6 +1,7 @@
 import face_recognition
 import cv2
 import numpy as np
+from datetime import datetime
 
 video_capture = cv2.VideoCapture(0)
 
@@ -230,15 +231,19 @@ known_face_names = [
     "Vinitha",
     "Soumya"
 ]
-
+List_Name={}
+List_time=set()
 face_locations = []
 face_encodings = []
 face_names = []
+login={}
 process_this_frame = True
 
 while True:
 
     ret, frame = video_capture.read()
+
+    
 
     if process_this_frame:
        
@@ -250,18 +255,35 @@ while True:
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
         face_names = []
+        count=0
         for face_encoding in face_encodings:
- 
+         
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
             name = "Unknown"
+            
+              
 
-
+            
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
+            
             if matches[best_match_index]:
+               
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
                 name = known_face_names[best_match_index]
-
+                List_Name[name]= now.strftime("%H:%M:%S")
+                login.update(List_Name)
+                
+                
+                
+                
             face_names.append(name)
+            
+            
+
+            
+                
 
     process_this_frame = not process_this_frame
 
@@ -285,3 +307,10 @@ while True:
 
 video_capture.release()
 cv2.destroyAllWindows()
+
+                
+length=len(List_Name)   
+print("Login is ",List_Name,"total is",length)
+
+
+
