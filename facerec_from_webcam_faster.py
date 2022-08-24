@@ -2,6 +2,10 @@ import face_recognition
 import cv2
 import numpy as np
 from datetime import datetime
+from datetime import date
+import mysql.connector
+import time 
+
 
 video_capture = cv2.VideoCapture(0)
 
@@ -232,11 +236,12 @@ known_face_names = [
     "Soumya"
 ]
 List_Name={}
-List_time=set()
 face_locations = []
 face_encodings = []
 face_names = []
 login={}
+list=[]
+
 process_this_frame = True
 
 while True:
@@ -255,7 +260,8 @@ while True:
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
         face_names = []
-        count=0
+        
+        unknownCount=0
         for face_encoding in face_encodings:
          
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
@@ -266,18 +272,15 @@ while True:
             
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
-            
+            if matches[best_match_index] is None :
+                    unknownCount=unknownCount+1;
             if matches[best_match_index]:
-               
+                time.sleep(15)
                 now = datetime.now()
                 current_time = now.strftime("%H:%M:%S")
                 name = known_face_names[best_match_index]
-                List_Name[name]= now.strftime("%H:%M:%S")
-                login.update(List_Name)
-                
-                
-                
-                
+                list.append(now.strftime("%H:%M:%S"))
+                List_Name[name]= list
             face_names.append(name)
             
             
@@ -307,10 +310,23 @@ while True:
 
 video_capture.release()
 cv2.destroyAllWindows()
-
+# mysqldb=mysql.connector.connect(host="localhost",user="root",password="Pushpraj123",database="login")  
+# mycursor=mysqldb.cursor()   
+# try:  
+#     mycursor.execute("insert into login values(1,List_Name.keys(),List_Name.values())") 
+#     mysqldb.commit() 
+#     print('Record inserted successfully...')   
+# except:  
+   
+#    mysqldb.rollback()  
+# mysqldb.close()
                 
-length=len(List_Name)   
-print("Login is ",List_Name,"total is",length)
+length=len(List_Name)  
+today = date.today()
+print("login details for date : ",today,"Login is ",List_Name)
 
+print("Known count is : ",length)
+print("Unknown count is : ",unknownCount)
+print("Total count is : ",unknownCount+length)
 
 
