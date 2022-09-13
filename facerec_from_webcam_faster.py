@@ -141,6 +141,9 @@ Vinitha_face_encoding = face_recognition.face_encodings(Vinitha_image)[0]
 Soumya_image = face_recognition.load_image_file("Soumya.png")
 Soumya_face_encoding = face_recognition.face_encodings(Soumya_image)[0]
 
+Siddharth_image = face_recognition.load_image_file("Siddharth.png")
+Siddharth_face_encoding = face_recognition.face_encodings(Siddharth_image)[0]
+
 
 
 
@@ -187,7 +190,8 @@ known_face_encodings = [
      Swati_face_encoding,
      Vikalp_face_encoding,
      Vinitha_face_encoding,
-     Soumya_face_encoding
+     Soumya_face_encoding,
+     Siddharth_face_encoding
 
 ]
 known_face_names = [
@@ -202,7 +206,7 @@ known_face_names = [
     "Akhil Verma",
     "Akhilesh",
     "Anil",
-    "Ankit Pawar",
+    "Ankit",
     "Ankita",
     "Ankit Engle",
     "Ankit Pawar",
@@ -233,20 +237,22 @@ known_face_names = [
     "Swati",
     "Vikalp",
     "Vinitha",
-    "Soumya"
+    "Soumya",
+    "Siddharth"
 ]
 List_Name={}
 face_locations = []
 face_encodings = []
 face_names = []
 login={}
-list_time=set()
-
+list=[]
+timeset=set()
 process_this_frame = True
 
 while True:
 
     ret, frame = video_capture.read()
+    
 
     if process_this_frame:
        
@@ -256,52 +262,33 @@ while True:
         
         face_locations = face_recognition.face_locations(rgb_small_frame)
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-
         face_names = []
-        
         unknownCount=0
         
         for face_encoding in face_encodings:
+            
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
             name = "Unknown"
+            
             face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index] is None :
-                    unknownCount=unknownCount+1;
+                    unknownCount=unknownCount+1
             if matches[best_match_index]:
+                now = datetime.now()
+                current_time = now.strftime("%H:%M:%S")
                 name = known_face_names[best_match_index]
-                for best_match_index in matches:
-                    # print("old_list_time",list_time)
-                    now = datetime.now()
-                    current_time = now.strftime("%H:%M:%S")
-                    # print("current_time",current_time)
-                    list_time.add(current_time)
-                    # print("list_time",list_time)
-                    
-                    # List_Name[name]=timeset
-                    if(name not in  List_Name.keys()) :
-                        list = []
-                        list.append(list_time)
+                if(name not in  List_Name.keys()) :
+                        list = set()
+                        list.add(now.strftime("%H:%M:%S"))
                         List_Name[name]= list
-                    else:
-                        for name in List_Name:
-                            timeset=set()
-                            list1=[]
-                            for name in List_Name.keys() :
-                                values= List_Name.get(name)
-                            list1.append(values)
-                            # timeset.update(list1)
-                            # timeset.add(current_time)
-                        # get the set for that name
-                        # update in that set only
+                else:  
+                        now = datetime.now()
+                        current_time = now.strftime("%H:%M:%S")
+                        timeset.add(current_time)
                         List_Name[name]= timeset
             face_names.append(name)
             
-            
-
-            
-                
-
     process_this_frame = not process_this_frame
 
 
@@ -324,17 +311,7 @@ while True:
 
 video_capture.release()
 cv2.destroyAllWindows()
-# mysqldb=mysql.connector.connect(host="localhost",user="root",password="Pushpraj123",database="login")  
-# mycursor=mysqldb.cursor()   
-# try:  
-#     mycursor.execute("insert into login values(1,List_Name.keys(),List_Name.values())") 
-#     mysqldb.commit() 
-#     print('Record inserted successfully...')   
-# except:  
-   
-#    mysqldb.rollback()  
-# mysqldb.close()
-                
+
 length=len(List_Name)  
 today = date.today()
 print("login details for date : ",today,"Login is ",List_Name)
@@ -342,6 +319,5 @@ print("login details for date : ",today,"Login is ",List_Name)
 print("Known count is : ",length)
 print("Unknown count is : ",unknownCount)
 print("Total count is : ",unknownCount+length)
-
 
 
